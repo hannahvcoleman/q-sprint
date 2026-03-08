@@ -115,59 +115,106 @@ export default function App() {
           </div>
         )
 
-      case SCREENS.SETUP:
+      case SCREENS.SETUP: {
+        const subjects = [
+          { value: 'gcse-foundation', label: 'GCSE Foundation', sub: 'Foundation tier topics' },
+          { value: 'gcse-higher',     label: 'GCSE Higher',     sub: 'Higher tier topics' },
+          { value: 'a-level',         label: 'A-Level',         sub: 'AS & A2 content' },
+        ]
+        const confidenceLevels = [
+          { value: 'low',  label: 'Low' },
+          { value: 'mid',  label: 'Mid' },
+          { value: 'high', label: 'High' },
+        ]
+        const durations = [10, 15, 20, 25, 30]
+        const questionStyles = [
+          { value: 'quickfire', label: 'Quickfire', desc: 'Rapid-fire questions to build speed and recall.' },
+          { value: 'mixed',     label: 'Mixed',     desc: 'A blend of quick and longer problems. Balanced practice.' },
+          { value: 'exam',      label: 'Exam',      desc: 'Exam-style questions modelled on mark schemes.' },
+        ]
+        const canContinue = subject && confidence
+
         return (
-          <div style={styles.screenPlaceholder}>
-            <h2>SETUP</h2>
-            {studentName && (
-              <p>Not {studentName}? <button onClick={switchUser} style={styles.linkButton}>Switch user</button></p>
-            )}
-            <div style={styles.formGroup}>
-              <label>Subject:</label>
-              <select value={subject} onChange={(e) => setSubject(e.target.value)} style={styles.input}>
-                <option value="">Select subject</option>
-                <option value="gcse-higher">GCSE Higher</option>
-                <option value="gcse-foundation">GCSE Foundation</option>
-                <option value="a-level">A-Level</option>
-              </select>
+          <div style={styles.setupScreen}>
+            <div style={styles.setupHeader}>
+              <h2 style={styles.setupTitle}>Set up your sprint</h2>
+              <button onClick={switchUser} style={styles.switchUserBtn}>
+                {studentName} · switch
+              </button>
             </div>
-            <div style={styles.formGroup}>
-              <label>Confidence:</label>
-              <select value={confidence || ''} onChange={(e) => setConfidence(e.target.value)} style={styles.input}>
-                <option value="">Select confidence</option>
-                <option value="low">Low</option>
-                <option value="mid">Mid</option>
-                <option value="high">High</option>
-              </select>
+
+            <div style={styles.setupSection}>
+              <p style={styles.sectionLabel}>Subject</p>
+              <div style={styles.subjectCards}>
+                {subjects.map(s => (
+                  <button
+                    key={s.value}
+                    onClick={() => setSubject(s.value)}
+                    style={subject === s.value ? styles.subjectCardSelected : styles.subjectCard}
+                  >
+                    <span style={styles.subjectCardLabel}>{s.label}</span>
+                    <span style={styles.subjectCardSub}>{s.sub}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div style={styles.formGroup}>
-              <label>Sprint Duration (minutes):</label>
-              <input 
-                type="number" 
-                value={sprintDuration}
-                onChange={(e) => setSprintDuration(parseInt(e.target.value))}
-                min="5"
-                max="60"
-                style={styles.input}
-              />
+
+            <div style={styles.setupSection}>
+              <p style={styles.sectionLabel}>How confident are you feeling?</p>
+              <div style={styles.confidenceRow}>
+                {confidenceLevels.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => setConfidence(c.value)}
+                    style={confidence === c.value ? styles.confidenceBtnSelected : styles.confidenceBtn}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div style={styles.formGroup}>
-              <label>Question Style:</label>
-              <select value={questionStyle} onChange={(e) => setQuestionStyle(e.target.value)} style={styles.input}>
-                <option value="quickfire">Quickfire</option>
-                <option value="mixed">Mixed</option>
-                <option value="exam">Exam</option>
-              </select>
+
+            <div style={styles.setupSection}>
+              <p style={styles.sectionLabel}>Sprint duration</p>
+              <div style={styles.chipRow}>
+                {durations.map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setSprintDuration(d)}
+                    style={sprintDuration === d ? styles.chipSelected : styles.chip}
+                  >
+                    {d} min
+                  </button>
+                ))}
+              </div>
             </div>
-            <button 
+
+            <div style={styles.setupSection}>
+              <p style={styles.sectionLabel}>Question style</p>
+              <div style={styles.styleCards}>
+                {questionStyles.map(qs => (
+                  <button
+                    key={qs.value}
+                    onClick={() => setQuestionStyle(qs.value)}
+                    style={questionStyle === qs.value ? styles.styleCardSelected : styles.styleCard}
+                  >
+                    <span style={styles.styleCardLabel}>{qs.label}</span>
+                    <span style={styles.styleCardDesc}>{qs.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
               onClick={() => navigateTo(SCREENS.READY)}
-              disabled={!subject || !confidence}
-              style={styles.button}
+              disabled={!canContinue}
+              style={canContinue ? styles.primaryButton : styles.primaryButtonDisabled}
             >
-              Continue
+              Continue →
             </button>
           </div>
         )
+      }
 
       case SCREENS.READY:
         return (
@@ -469,6 +516,194 @@ const styles = {
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
     marginTop: '24px',
+  },
+
+  // Setup screen
+  setupScreen: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '28px',
+    padding: '28px 4px 8px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+  },
+  setupHeader: {
+    display: 'flex',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
+  setupTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    color: '#1e1b4b',
+    fontSize: '1.6rem',
+    margin: 0,
+  },
+  switchUserBtn: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#6b6580',
+    fontSize: '0.85rem',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    padding: 0,
+  },
+  setupSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  sectionLabel: {
+    fontFamily: 'IBM Plex Mono, monospace',
+    fontSize: '0.72rem',
+    fontWeight: 500,
+    color: '#6b6580',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    margin: 0,
+  },
+  subjectCards: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  subjectCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '2px',
+    padding: '14px 16px',
+    backgroundColor: '#f5f0e8',
+    border: '2px solid transparent',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    width: '100%',
+  },
+  subjectCardSelected: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '2px',
+    padding: '14px 16px',
+    backgroundColor: '#eeeaf8',
+    border: '2px solid #1e1b4b',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    width: '100%',
+  },
+  subjectCardLabel: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    color: '#1e1b4b',
+  },
+  subjectCardSub: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 400,
+    fontSize: '0.8rem',
+    color: '#6b6580',
+  },
+  confidenceRow: {
+    display: 'flex',
+    gap: '8px',
+  },
+  confidenceBtn: {
+    flex: 1,
+    padding: '12px 8px',
+    backgroundColor: '#f5f0e8',
+    border: '2px solid transparent',
+    borderRadius: '10px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 500,
+    fontSize: '0.95rem',
+    color: '#1e1b4b',
+    cursor: 'pointer',
+  },
+  confidenceBtnSelected: {
+    flex: 1,
+    padding: '12px 8px',
+    backgroundColor: '#eeeaf8',
+    border: '2px solid #1e1b4b',
+    borderRadius: '10px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    color: '#1e1b4b',
+    cursor: 'pointer',
+  },
+  chipRow: {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    padding: '8px 16px',
+    backgroundColor: '#f5f0e8',
+    border: '2px solid transparent',
+    borderRadius: '999px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 500,
+    fontSize: '0.88rem',
+    color: '#1e1b4b',
+    cursor: 'pointer',
+  },
+  chipSelected: {
+    padding: '8px 16px',
+    backgroundColor: '#1e1b4b',
+    border: '2px solid #1e1b4b',
+    borderRadius: '999px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    fontSize: '0.88rem',
+    color: '#fffefb',
+    cursor: 'pointer',
+  },
+  styleCards: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  styleCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '3px',
+    padding: '14px 16px',
+    backgroundColor: '#f5f0e8',
+    border: '2px solid transparent',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    width: '100%',
+  },
+  styleCardSelected: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '3px',
+    padding: '14px 16px',
+    backgroundColor: '#eeeaf8',
+    border: '2px solid #1e1b4b',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    textAlign: 'left',
+    width: '100%',
+  },
+  styleCardLabel: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    color: '#1e1b4b',
+  },
+  styleCardDesc: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 400,
+    fontSize: '0.8rem',
+    color: '#6b6580',
+    lineHeight: 1.4,
   },
 
   // Shared / other screens
