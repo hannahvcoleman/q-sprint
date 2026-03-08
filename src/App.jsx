@@ -19,6 +19,7 @@ export default function App() {
   const [nameInput, setNameInput] = useState('')
   const [returningName, setReturningName] = useState(null)
   const [subject, setSubject] = useState('')
+  const [selectedCurriculum, setSelectedCurriculum] = useState('')
   const [confidence, setConfidence] = useState(null)
   const [sprintDuration, setSprintDuration] = useState(15)
   const [questionStyle, setQuestionStyle] = useState('mixed')
@@ -46,6 +47,7 @@ export default function App() {
     setReturningName(null)
     setNameInput('')
     setSubject('')
+    setSelectedCurriculum('')
     setConfidence(null)
     setSprintDuration(15)
     setQuestionStyle('mixed')
@@ -116,11 +118,26 @@ export default function App() {
         )
 
       case SCREENS.SETUP: {
-        const subjects = [
-          { value: 'gcse-foundation', label: 'GCSE Foundation', sub: 'Foundation tier topics' },
-          { value: 'gcse-higher',     label: 'GCSE Higher',     sub: 'Higher tier topics' },
-          { value: 'a-level',         label: 'A-Level',         sub: 'AS & A2 content' },
+        const curricula = [
+          { value: 'gcse', label: 'GCSE', sub: 'Foundation or Higher tier' },
+          { value: 'a-level', label: 'A-Level', sub: 'Maths or Further Maths' },
+          { value: 'ib', label: 'IB', sub: 'SL or HL content' },
         ]
+        
+        const subjectLevels = {
+          gcse: [
+            { value: 'gcse-foundation', label: 'Foundation' },
+            { value: 'gcse-higher', label: 'Higher' },
+          ],
+          'a-level': [
+            { value: 'a-level-maths', label: 'Maths' },
+            { value: 'a-level-further', label: 'Further Maths' },
+          ],
+          ib: [
+            { value: 'ib-sl', label: 'SL' },
+            { value: 'ib-hl', label: 'HL' },
+          ],
+        }
         const confidenceLevels = [
           { value: 'low',  label: 'Low' },
           { value: 'mid',  label: 'Mid' },
@@ -145,18 +162,47 @@ export default function App() {
 
             <div style={styles.setupSection}>
               <p style={styles.sectionLabel}>Subject</p>
-              <div style={styles.subjectCards}>
-                {subjects.map(s => (
-                  <button
-                    key={s.value}
-                    onClick={() => setSubject(s.value)}
-                    style={subject === s.value ? styles.subjectCardSelected : styles.subjectCard}
+              
+              {!selectedCurriculum ? (
+                <div style={styles.subjectCards}>
+                  {curricula.map(c => (
+                    <button
+                      key={c.value}
+                      onClick={() => setSelectedCurriculum(c.value)}
+                      style={styles.subjectCard}
+                    >
+                      <span style={styles.subjectCardLabel}>{c.label}</span>
+                      <span style={styles.subjectCardSub}>{c.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <button 
+                    onClick={() => {
+                      setSelectedCurriculum('')
+                      setSubject('')
+                    }}
+                    style={styles.backButton}
                   >
-                    <span style={styles.subjectCardLabel}>{s.label}</span>
-                    <span style={styles.subjectCardSub}>{s.sub}</span>
+                    ← Back to curricula
                   </button>
-                ))}
-              </div>
+                  <div style={styles.subjectCards}>
+                    {subjectLevels[selectedCurriculum].map(level => (
+                      <button
+                        key={level.value}
+                        onClick={() => setSubject(level.value)}
+                        style={subject === level.value ? styles.subjectCardSelected : styles.subjectCard}
+                      >
+                        <span style={styles.subjectCardLabel}>{level.label}</span>
+                        <span style={styles.subjectCardSub}>
+                          {curricula.find(c => c.value === selectedCurriculum)?.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div style={styles.setupSection}>
@@ -304,6 +350,7 @@ export default function App() {
             <button onClick={() => {
               // Keep name, reset everything else
               setSubject('')
+              setSelectedCurriculum('')
               setConfidence(null)
               setSprintDuration(15)
               setQuestionStyle('mixed')
