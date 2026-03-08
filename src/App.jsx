@@ -27,6 +27,58 @@ const SCREENS = {
 
 const LS_NAME_KEY = 'qsprint_student_name'
 
+// Milk Glass Timer Component
+const MilkGlass = ({ fill, size = 'small', time }) => {
+  const dimensions = size === 'small' 
+    ? { width: 54, height: 70 }
+    : { width: 120, height: 160 }
+  
+  const glassHeight = dimensions.height - 10 // Leave room at top
+  const milkHeight = glassHeight * fill
+  const isLow = fill < 0.1
+  
+  return (
+    <div style={styles.milkGlassContainer}>
+      <svg 
+        width={dimensions.width} 
+        height={dimensions.height} 
+        viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+        style={styles.milkGlassSvg}
+      >
+        {/* Glass outline */}
+        <path 
+          d={`M 5,10 L ${dimensions.width - 5},10 L ${dimensions.width - 10},${dimensions.height - 5} L 10,${dimensions.height - 5} Z`}
+          fill="none" 
+          stroke={colors.blue} 
+          strokeWidth="2"
+        />
+        
+        {/* Milk fill */}
+        <path 
+          d={`M 7,${12 + (glassHeight - milkHeight)} L ${dimensions.width - 7},${12 + (glassHeight - milkHeight)} L ${dimensions.width - 12},${glassHeight - 7} L 12,${glassHeight - 7} Z`}
+          fill={isLow ? '#ffcccc' : 'white'} 
+          opacity="0.9"
+        />
+        
+        {/* Time overlay */}
+        <text
+          x={dimensions.width / 2}
+          y={dimensions.height / 2}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          style={{
+            ...styles.milkGlassTime,
+            fill: isLow ? colors.terracotta : colors.text,
+            fontSize: size === 'small' ? '12px' : '18px'
+          }}
+        >
+          {time}
+        </text>
+      </svg>
+    </div>
+  )
+}
+
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.WELCOME)
   const [studentName, setStudentName] = useState('')
@@ -38,6 +90,7 @@ export default function App() {
   const [sprintDuration, setSprintDuration] = useState(15)
   const [questionStyle, setQuestionStyle] = useState('mixed')
   const [showExitModal, setShowExitModal] = useState(false)
+  const [breakTimeLeft, setBreakTimeLeft] = useState(180) // 3 minutes in seconds
 
   useEffect(() => {
     const saved = localStorage.getItem(LS_NAME_KEY)
@@ -83,51 +136,56 @@ export default function App() {
       case SCREENS.WELCOME:
         return (
           <div style={styles.welcomeScreen}>
-            <div style={styles.welcomeHero}>
-              <div style={styles.logoMark}>Q</div>
+            {/* Mountain logo */}
+            <div style={styles.logoContainer}>
+              <svg width="36" height="24" viewBox="0 0 60 40">
+                <path d="M5 35 L20 10 L30 22 L40 8 L55 35" stroke={colors.blue} 
+                  strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" 
+                  fill="none"/>
+              </svg>
               <h1 style={styles.logoTitle}>Q-Sprint</h1>
-              <p style={styles.tagline}>Sharp questions. Sharper mathematicians.</p>
             </div>
 
-            <div style={styles.welcomeCard}>
-              {returningName ? (
-                <>
-                  <p style={styles.welcomeBack}>Welcome back,</p>
-                  <p style={styles.returningName}>{returningName} 👋</p>
-                  <button
-                    onClick={() => confirmName(returningName)}
-                    style={styles.primaryButton}
-                  >
-                    Continue →
-                  </button>
-                  <button onClick={switchUser} style={styles.ghostButton}>
-                    Not {returningName}?
-                  </button>
-                </>
-              ) : (
-                <>
-                  <label style={styles.nameLabel}>What's your name?</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Amara"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && nameInput.trim() && confirmName(nameInput.trim())}
-                    style={styles.nameInput}
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => confirmName(nameInput.trim())}
-                    disabled={!nameInput.trim()}
-                    style={nameInput.trim() ? styles.primaryButton : styles.primaryButtonDisabled}
-                  >
-                    Let's go →
-                  </button>
-                </>
-              )}
+            {/* Scallop wave divider */}
+            <svg viewBox="0 0 400 32" preserveAspectRatio="none" style={styles.waveDivider}>
+              <path d="M0 32 C20 0,40 0,50 16 C60 32,80 32,100 16 C110 0,130 
+                0,150 16 C160 32,180 32,200 16 C210 0,230 0,250 16 C260 32,280 
+                32,300 16 C310 0,330 0,350 16 C360 32,380 32,400 16 L400 32Z" 
+                fill={colors.blue} />
+            </svg>
+
+            {/* Hero content */}
+            <div style={styles.heroContent}>
+              <h2 style={styles.heroTitle}>Focused maths practice, one question at a time.</h2>
+              <p style={styles.heroSubtitle}>
+                Q-Sprint helps you build mathematical confidence through focused practice sessions. 
+                Choose your subject, set your difficulty, and improve one step at a time.
+              </p>
             </div>
 
-            <p style={styles.welcomeFooter}>GCSE & A-Level Maths</p>
+            {/* Name input */}
+            <div style={styles.nameInputSection}>
+              <label style={styles.inputLabel}>What should I call you?</label>
+              <input 
+                type="text" 
+                placeholder="Your name"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                style={styles.nameInput}
+              />
+            </div>
+
+            {/* Continue button */}
+            <button 
+              onClick={() => confirmName(nameInput)}
+              disabled={!nameInput.trim()}
+              style={nameInput.trim() ? styles.primaryButton : styles.primaryButtonDisabled}
+            >
+              Let's go →
+            </button>
+
+            {/* Footer note */}
+            <p style={styles.footerNote}>Grab a pen and paper — you'll need them.</p>
           </div>
         )
 
@@ -297,13 +355,55 @@ export default function App() {
 
       case SCREENS.READY:
         return (
-          <div style={styles.screenPlaceholder}>
-            <h2>READY</h2>
-            <p>Ready to start your sprint, {studentName}?</p>
-            <button onClick={() => navigateTo(SCREENS.SPRINT)} style={styles.button}>
-              Begin Sprint
+          <div style={styles.readyScreen}>
+            {/* Large emoji */}
+            <div style={styles.readyEmoji}>📝</div>
+            
+            {/* Title */}
+            <h2 style={styles.readyTitle}>Ready?</h2>
+            
+            {/* Scallop wave */}
+            <svg viewBox="0 0 400 32" preserveAspectRatio="none" style={styles.waveDivider}>
+              <path d="M0 32 C20 0,40 0,50 16 C60 32,80 32,100 16 C110 0,130 
+                0,150 16 C160 32,180 32,200 16 C210 0,230 0,250 16 C260 32,280 
+                32,300 16 C310 0,330 0,350 16 C360 32,380 32,400 16 L400 32Z" 
+                fill={colors.blue} />
+            </svg>
+            
+            {/* Duration text */}
+            <p style={styles.readyDuration}>
+              You've got {sprintDuration} minutes of focused practice ahead.
+            </p>
+            
+            {/* Checklist */}
+            <div style={styles.checklist}>
+              <div style={styles.checklistItem}>
+                <span style={styles.checklistIcon}>✓</span>
+                <span>Pen and paper</span>
+              </div>
+              <div style={styles.checklistItem}>
+                <span style={styles.checklistIcon}>✓</span>
+                <span>Calculator (if needed)</span>
+              </div>
+              <div style={styles.checklistItem}>
+                <span style={styles.checklistIcon}>✓</span>
+                <span>No distractions</span>
+              </div>
+            </div>
+            
+            {/* Begin sprint button */}
+            <button 
+              onClick={() => navigateTo(SCREENS.SPRINT)} 
+              style={styles.beginSprintButton}
+            >
+              Begin sprint
             </button>
-            <button onClick={() => navigateTo(SCREENS.SETUP)} style={styles.backButton}>
+            
+            {/* Back link */}
+            <button 
+              onClick={() => navigateTo(SCREENS.SETUP)} 
+              style={styles.backLink}
+            >
               ← Back to setup
             </button>
           </div>
@@ -362,15 +462,48 @@ export default function App() {
         )
 
       case SCREENS.BREAK:
+        const formatTime = (seconds) => {
+          const mins = Math.floor(seconds / 60)
+          const secs = seconds % 60
+          return `${mins}:${secs.toString().padStart(2, '0')}`
+        }
+        
         return (
-          <div style={styles.screenPlaceholder}>
-            <h2>BREAK</h2>
-            <p>Time for a break!</p>
-            <button onClick={() => navigateTo(SCREENS.READY)} style={styles.button}>
-              Start Next Sprint
+          <div style={styles.breakScreen}>
+            {/* Title */}
+            <h2 style={styles.breakTitle}>Break time</h2>
+            <p style={styles.breakSubtitle}>Step away. Stretch. Get water.</p>
+            
+            {/* Milk glass timer */}
+            <div style={styles.timerContainer}>
+              <MilkGlass 
+                fill={breakTimeLeft / 180} 
+                size="large" 
+                time={formatTime(breakTimeLeft)}
+              />
+            </div>
+            
+            {/* Action buttons */}
+            <button 
+              onClick={() => navigateTo(SCREENS.READY)} 
+              style={styles.primaryButton}
+            >
+              Start next sprint
             </button>
-            <button onClick={() => navigateTo(SCREENS.SESSION_SUMMARY)} style={styles.button}>
-              End Session
+            
+            <button 
+              onClick={() => navigateTo(SCREENS.SESSION_SUMMARY)} 
+              style={styles.secondaryButton}
+            >
+              End session
+            </button>
+            
+            {/* Back link */}
+            <button 
+              onClick={() => navigateTo(SCREENS.SETUP)} 
+              style={styles.backLink}
+            >
+              ← Back to menu
             </button>
           </div>
         )
@@ -908,5 +1041,220 @@ const styles = {
     borderRadius: '12px',
     textAlign: 'center',
     minWidth: '300px'
+  },
+  // Welcome screen styles
+  welcomeScreen: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    textAlign: 'center',
+    maxWidth: '400px',
+    margin: '0 auto',
+    padding: '40px 20px'
+  },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '32px',
+    gap: '12px'
+  },
+  logoTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontWeight: 700,
+    color: colors.blue,
+    fontSize: '24px',
+    margin: 0
+  },
+  waveDivider: {
+    width: '100%',
+    height: '20px',
+    marginBottom: '32px'
+  },
+  heroContent: {
+    marginBottom: '40px'
+  },
+  heroTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    color: colors.navy,
+    fontSize: '32px',
+    margin: '0 0 16px 0',
+    lineHeight: 1.2
+  },
+  heroSubtitle: {
+    fontSize: '16px',
+    color: colors.textLight,
+    lineHeight: 1.5,
+    margin: 0
+  },
+  nameInputSection: {
+    marginBottom: '32px'
+  },
+  inputLabel: {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: colors.text,
+    marginBottom: '8px',
+    textAlign: 'left'
+  },
+  nameInput: {
+    width: '100%',
+    padding: '16px',
+    border: `2px solid ${colors.border}`,
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    marginBottom: '24px'
+  },
+  primaryButton: {
+    width: '100%',
+    padding: '16px',
+    backgroundColor: colors.blue,
+    color: colors.white,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
+    marginBottom: '16px'
+  },
+  primaryButtonDisabled: {
+    width: '100%',
+    padding: '16px',
+    backgroundColor: colors.border,
+    color: colors.textMuted,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'not-allowed',
+    marginBottom: '16px'
+  },
+  footerNote: {
+    fontSize: '14px',
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    margin: 0
+  },
+  // Ready screen styles
+  readyScreen: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    textAlign: 'center',
+    maxWidth: '400px',
+    margin: '0 auto',
+    padding: '40px 20px'
+  },
+  readyEmoji: {
+    fontSize: '64px',
+    marginBottom: '24px'
+  },
+  readyTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    color: colors.navy,
+    fontSize: '32px',
+    margin: '0 0 24px 0'
+  },
+  readyDuration: {
+    fontSize: '18px',
+    color: colors.text,
+    margin: '0 0 32px 0',
+    lineHeight: 1.4
+  },
+  checklist: {
+    textAlign: 'left',
+    marginBottom: '32px'
+  },
+  checklistItem: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '12px',
+    fontSize: '16px'
+  },
+  checklistIcon: {
+    color: colors.blue,
+    fontWeight: 'bold',
+    marginRight: '12px',
+    fontSize: '18px'
+  },
+  beginSprintButton: {
+    width: '100%',
+    padding: '18px',
+    backgroundColor: colors.terracotta,
+    color: colors.white,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '18px',
+    fontWeight: '600',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
+    marginBottom: '24px'
+  },
+  backLink: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: colors.textLight,
+    fontSize: '14px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    textDecoration: 'underline'
+  },
+  // Break screen styles
+  breakScreen: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    textAlign: 'center',
+    maxWidth: '400px',
+    margin: '0 auto',
+    padding: '40px 20px'
+  },
+  breakTitle: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    color: colors.navy,
+    fontSize: '32px',
+    margin: '0 0 16px 0'
+  },
+  breakSubtitle: {
+    fontSize: '16px',
+    color: colors.textLight,
+    margin: '0 0 40px 0',
+    lineHeight: 1.4
+  },
+  timerContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '40px'
+  },
+  milkGlassContainer: {
+    display: 'flex',
+    justifyContent: 'center'
+  },
+  milkGlassSvg: {
+    display: 'block'
+  },
+  milkGlassTime: {
+    fontFamily: 'IBM Plex Mono, monospace',
+    fontWeight: 'bold'
+  },
+  secondaryButton: {
+    width: '100%',
+    padding: '16px',
+    backgroundColor: 'transparent',
+    color: colors.text,
+    border: `2px solid ${colors.border}`,
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '500',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    marginBottom: '12px'
   }
 }
