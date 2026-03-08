@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 const SCREENS = {
   WELCOME: 'WELCOME',
-  SETUP: 'SETUP', 
+  SETUP: 'SETUP',
   READY: 'READY',
   SPRINT: 'SPRINT',
   FEEDBACK: 'FEEDBACK',
@@ -11,9 +11,13 @@ const SCREENS = {
   SESSION_SUMMARY: 'SESSION_SUMMARY'
 }
 
+const LS_NAME_KEY = 'qsprint_student_name'
+
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.WELCOME)
   const [studentName, setStudentName] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [returningName, setReturningName] = useState(null)
   const [subject, setSubject] = useState('')
   const [confidence, setConfidence] = useState(null)
   const [sprintDuration, setSprintDuration] = useState(15)
@@ -21,18 +25,26 @@ export default function App() {
   const [showExitModal, setShowExitModal] = useState(false)
 
   useEffect(() => {
-    // Skip WELCOME if studentName is already set (from localStorage later)
-    if (studentName) {
-      setScreen(SCREENS.SETUP)
-    }
-  }, [studentName])
+    const saved = localStorage.getItem(LS_NAME_KEY)
+    if (saved) setReturningName(saved)
+  }, [])
 
   const navigateTo = (targetScreen) => {
     setScreen(targetScreen)
   }
 
+  const confirmName = (name) => {
+    localStorage.setItem(LS_NAME_KEY, name)
+    setStudentName(name)
+    setReturningName(name)
+    setScreen(SCREENS.SETUP)
+  }
+
   const switchUser = () => {
+    localStorage.removeItem(LS_NAME_KEY)
     setStudentName('')
+    setReturningName(null)
+    setNameInput('')
     setSubject('')
     setConfidence(null)
     setSprintDuration(15)
@@ -54,23 +66,52 @@ export default function App() {
     switch (screen) {
       case SCREENS.WELCOME:
         return (
-          <div style={styles.screenPlaceholder}>
-            <h2>WELCOME</h2>
-            <p>Enter your name to continue</p>
-            <input 
-              type="text" 
-              placeholder="Your name"
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
-              style={styles.input}
-            />
-            <button 
-              onClick={() => navigateTo(SCREENS.SETUP)}
-              disabled={!studentName.trim()}
-              style={styles.button}
-            >
-              Continue
-            </button>
+          <div style={styles.welcomeScreen}>
+            <div style={styles.welcomeHero}>
+              <div style={styles.logoMark}>Q</div>
+              <h1 style={styles.logoTitle}>Q-Sprint</h1>
+              <p style={styles.tagline}>Sharp questions. Sharper mathematicians.</p>
+            </div>
+
+            <div style={styles.welcomeCard}>
+              {returningName ? (
+                <>
+                  <p style={styles.welcomeBack}>Welcome back,</p>
+                  <p style={styles.returningName}>{returningName} 👋</p>
+                  <button
+                    onClick={() => confirmName(returningName)}
+                    style={styles.primaryButton}
+                  >
+                    Continue →
+                  </button>
+                  <button onClick={switchUser} style={styles.ghostButton}>
+                    Not {returningName}?
+                  </button>
+                </>
+              ) : (
+                <>
+                  <label style={styles.nameLabel}>What's your name?</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Amara"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && nameInput.trim() && confirmName(nameInput.trim())}
+                    style={styles.nameInput}
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => confirmName(nameInput.trim())}
+                    disabled={!nameInput.trim()}
+                    style={nameInput.trim() ? styles.primaryButton : styles.primaryButtonDisabled}
+                  >
+                    Let's go →
+                  </button>
+                </>
+              )}
+            </div>
+
+            <p style={styles.welcomeFooter}>GCSE & A-Level Maths</p>
           </div>
         )
 
@@ -287,30 +328,154 @@ const styles = {
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     padding: '24px 20px',
-    '&::-webkit-scrollbar': {
-      display: 'none'
-    }
   },
-  screenPlaceholder: {
-    fontFamily: 'IBM Plex Sans, sans-serif',
-    textAlign: 'center',
-    padding: '20px'
+
+  // Welcome screen
+  welcomeScreen: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: '100%',
+    padding: '40px 24px 32px',
+    boxSizing: 'border-box',
   },
-  title: {
+  welcomeHero: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  logoMark: {
+    width: '72px',
+    height: '72px',
+    borderRadius: '20px',
+    backgroundColor: '#1e1b4b',
+    color: '#f5f0e8',
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    fontSize: '2.4rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '8px',
+    boxShadow: '0 4px 20px rgba(30,27,75,0.25)',
+  },
+  logoTitle: {
     fontFamily: 'Playfair Display, serif',
     fontStyle: 'italic',
     fontWeight: 700,
     color: '#1e1b4b',
-    fontSize: '2.5rem',
-    marginBottom: '16px',
-    textAlign: 'center'
+    fontSize: '2.8rem',
+    margin: 0,
+    lineHeight: 1.1,
   },
-  subtitle: {
+  tagline: {
     fontFamily: 'IBM Plex Sans, sans-serif',
     fontWeight: 400,
     color: '#6b6580',
-    fontSize: '1.1rem',
-    textAlign: 'center'
+    fontSize: '1rem',
+    margin: '8px 0 0',
+    textAlign: 'center',
+  },
+  welcomeCard: {
+    width: '100%',
+    backgroundColor: '#f5f0e8',
+    borderRadius: '16px',
+    padding: '28px 24px',
+    boxSizing: 'border-box',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  welcomeBack: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    color: '#6b6580',
+    fontSize: '1rem',
+    margin: 0,
+    fontWeight: 400,
+  },
+  returningName: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    color: '#1e1b4b',
+    fontSize: '1.8rem',
+    fontWeight: 700,
+    margin: '0 0 8px',
+  },
+  nameLabel: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 500,
+    color: '#1e1b4b',
+    fontSize: '1rem',
+    alignSelf: 'flex-start',
+  },
+  nameInput: {
+    width: '100%',
+    padding: '14px 16px',
+    border: '2px solid #e0daf0',
+    borderRadius: '10px',
+    fontSize: '16px',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    backgroundColor: '#fffefb',
+    color: '#1e1b4b',
+    outline: 'none',
+    boxSizing: 'border-box',
+  },
+  primaryButton: {
+    width: '100%',
+    backgroundColor: '#1e1b4b',
+    color: '#fffefb',
+    border: 'none',
+    padding: '14px 24px',
+    borderRadius: '10px',
+    fontSize: '1rem',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    cursor: 'pointer',
+    letterSpacing: '0.02em',
+  },
+  primaryButtonDisabled: {
+    width: '100%',
+    backgroundColor: '#ccc8dc',
+    color: '#fffefb',
+    border: 'none',
+    padding: '14px 24px',
+    borderRadius: '10px',
+    fontSize: '1rem',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 600,
+    cursor: 'not-allowed',
+    letterSpacing: '0.02em',
+  },
+  ghostButton: {
+    backgroundColor: 'transparent',
+    color: '#6b6580',
+    border: 'none',
+    fontSize: '0.9rem',
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    padding: '4px',
+  },
+  welcomeFooter: {
+    fontFamily: 'IBM Plex Mono, monospace',
+    fontSize: '0.75rem',
+    color: '#b0a8c8',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    marginTop: '24px',
+  },
+
+  // Shared / other screens
+  screenPlaceholder: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    textAlign: 'center',
+    padding: '20px'
   },
   input: {
     width: '100%',
@@ -331,13 +496,6 @@ const styles = {
     fontFamily: 'IBM Plex Sans, sans-serif',
     cursor: 'pointer',
     margin: '8px',
-    '&:hover': {
-      backgroundColor: '#2d2868'
-    },
-    '&:disabled': {
-      backgroundColor: '#ccc',
-      cursor: 'not-allowed'
-    }
   },
   backButton: {
     backgroundColor: 'transparent',
