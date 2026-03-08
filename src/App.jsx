@@ -1,4 +1,18 @@
 import { useState, useEffect } from 'react'
+import topicsData from './data/topics.json'
+
+// Design system colors
+const colors = {
+  cream: '#f5f0e8',
+  white: '#fffefb',
+  blue: '#3430d4',
+  navy: '#1e1b4b',
+  terracotta: '#c8553d',
+  text: '#3d3552',
+  textLight: '#6b6580',
+  textMuted: '#9992a8',
+  border: '#d8d0c4'
+}
 
 const SCREENS = {
   WELCOME: 'WELCOME',
@@ -119,9 +133,9 @@ export default function App() {
 
       case SCREENS.SETUP: {
         const curricula = [
-          { value: 'gcse', label: 'GCSE', sub: 'Foundation or Higher tier' },
-          { value: 'a-level', label: 'A-Level', sub: 'Maths or Further Maths' },
-          { value: 'ib', label: 'IB', sub: 'SL or HL content' },
+          { value: 'gcse', label: 'GCSE Maths' },
+          { value: 'a-level', label: 'A-Level Maths' },
+          { value: 'ib', label: 'IB Maths' },
         ]
         
         const subjectLevels = {
@@ -130,8 +144,8 @@ export default function App() {
             { value: 'gcse-higher', label: 'Higher' },
           ],
           'a-level': [
-            { value: 'a-level-maths', label: 'Maths' },
-            { value: 'a-level-further', label: 'Further Maths' },
+            { value: 'alevel-maths', label: 'Maths' },
+            { value: 'alevel-further', label: 'Further Maths' },
           ],
           ib: [
             { value: 'ib-sl', label: 'SL' },
@@ -139,80 +153,50 @@ export default function App() {
           ],
         }
         const confidenceLevels = [
-          { value: 'low',  label: 'Low' },
-          { value: 'mid',  label: 'Mid' },
-          { value: 'high', label: 'High' },
+          { value: 'low', label: 'I struggle', color: colors.terracotta },
+          { value: 'mid', label: 'Getting there', color: '#d4882a' },
+          { value: 'high', label: 'Fairly solid', color: colors.blue },
         ]
-        const durations = [10, 15, 20, 25, 30]
+        const durations = [10, 15, 20, 25]
         const questionStyles = [
-          { value: 'quickfire', label: 'Quickfire', desc: 'Rapid-fire questions to build speed and recall.' },
-          { value: 'mixed',     label: 'Mixed',     desc: 'A blend of quick and longer problems. Balanced practice.' },
-          { value: 'exam',      label: 'Exam',      desc: 'Exam-style questions modelled on mark schemes.' },
+          { value: 'quickfire', label: 'Quick fire', desc: 'Fast recall — aim for speed and accuracy' },
+          { value: 'mixed',     label: 'Mixed',     desc: 'A balanced mix of quick and multi-step questions' },
+          { value: 'exam',      label: 'Exam practice', desc: 'Longer problems like you\'d see in an exam' },
         ]
-        const canContinue = subject && confidence
 
         return (
           <div style={styles.setupScreen}>
-            <div style={styles.setupHeader}>
-              <h2 style={styles.setupTitle}>Set up your sprint</h2>
-              <button onClick={switchUser} style={styles.switchUserBtn}>
-                {studentName} · switch
+            {/* Greeting */}
+            <div style={styles.greeting}>
+              <p style={styles.greetingText}>Hey {studentName} 👋</p>
+              <button onClick={switchUser} style={styles.switchUserLink}>
+                Not {studentName}? Switch user
               </button>
             </div>
 
-            <div style={styles.setupSection}>
-              <p style={styles.sectionLabel}>Subject</p>
-              
-              {!selectedCurriculum ? (
-                <div style={styles.subjectCards}>
-                  {curricula.map(c => (
-                    <button
-                      key={c.value}
-                      onClick={() => setSelectedCurriculum(c.value)}
-                      style={styles.subjectCard}
-                    >
-                      <span style={styles.subjectCardLabel}>{c.label}</span>
-                      <span style={styles.subjectCardSub}>{c.sub}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div>
-                  <button 
-                    onClick={() => {
-                      setSelectedCurriculum('')
-                      setSubject('')
-                    }}
-                    style={styles.backButton}
-                  >
-                    ← Back to curricula
-                  </button>
-                  <div style={styles.subjectCards}>
-                    {subjectLevels[selectedCurriculum].map(level => (
-                      <button
-                        key={level.value}
-                        onClick={() => setSubject(level.value)}
-                        style={subject === level.value ? styles.subjectCardSelected : styles.subjectCard}
-                      >
-                        <span style={styles.subjectCardLabel}>{level.label}</span>
-                        <span style={styles.subjectCardSub}>
-                          {curricula.find(c => c.value === selectedCurriculum)?.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Title */}
+            <h2 style={styles.setupTitle}>Set up your session</h2>
 
-            <div style={styles.setupSection}>
-              <p style={styles.sectionLabel}>How confident are you feeling?</p>
-              <div style={styles.confidenceRow}>
-                {confidenceLevels.map(c => (
+            {/* Scallop wave divider */}
+            <svg viewBox="0 0 400 32" preserveAspectRatio="none" style={styles.waveDivider}>
+              <path d="M0 32 C20 0,40 0,50 16 C60 32,80 32,100 16 C110 0,130 
+                0,150 16 C160 32,180 32,200 16 C210 0,230 0,250 16 C260 32,280 
+                32,300 16 C310 0,330 0,350 16 C360 32,380 32,400 16 L400 32Z" 
+                fill={colors.blue} />
+            </svg>
+
+            {/* STEP 1 - Curriculum */}
+            <div style={styles.stepSection}>
+              <p style={styles.stepLabel}>STEP 1 — CURRICULUM</p>
+              <div style={styles.chipContainer}>
+                {curricula.map(c => (
                   <button
                     key={c.value}
-                    onClick={() => setConfidence(c.value)}
-                    style={confidence === c.value ? styles.confidenceBtnSelected : styles.confidenceBtn}
+                    onClick={() => {
+                      setSelectedCurriculum(c.value)
+                      setSubject('')
+                    }}
+                    style={selectedCurriculum === c.value ? styles.chipActive : styles.chip}
                   >
                     {c.label}
                   </button>
@@ -220,14 +204,57 @@ export default function App() {
               </div>
             </div>
 
-            <div style={styles.setupSection}>
-              <p style={styles.sectionLabel}>Sprint duration</p>
-              <div style={styles.chipRow}>
+            {/* STEP 2 - Sub-level */}
+            {selectedCurriculum && (
+              <div style={styles.stepSection}>
+                <p style={styles.stepLabel}>STEP 2 — LEVEL</p>
+                <div style={styles.chipContainer}>
+                  {subjectLevels[selectedCurriculum].map(level => (
+                    <button
+                      key={level.value}
+                      onClick={() => setSubject(level.value)}
+                      style={subject === level.value ? styles.chipActive : styles.chip}
+                    >
+                      {level.label}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Topics coverage text */}
+                {subject && topicsData[subject] && (
+                  <p style={styles.coverageText}>
+                    Covers: {topicsData[subject].topics.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* STEP 3 - Confidence */}
+            <div style={styles.stepSection}>
+              <p style={styles.stepLabel}>STEP 3 — CONFIDENCE</p>
+              <div style={styles.confidenceContainer}>
+                {confidenceLevels.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => setConfidence(c.value)}
+                    style={confidence === c.value ? styles.confidenceCardActive : styles.confidenceCard}
+                  >
+                    <div style={{...styles.confidenceColor, backgroundColor: c.color}}></div>
+                    <div style={styles.confidenceLabel}>{c.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* STEP 4 - Sprint duration */}
+            <div style={styles.stepSection}>
+              <p style={styles.stepLabel}>STEP 4 — SPRINT DURATION</p>
+              <div style={styles.chipContainer}>
                 {durations.map(d => (
                   <button
                     key={d}
                     onClick={() => setSprintDuration(d)}
-                    style={sprintDuration === d ? styles.chipSelected : styles.chip}
+                    style={sprintDuration === d ? styles.chipActive : styles.chip}
                   >
                     {d} min
                   </button>
@@ -235,28 +262,34 @@ export default function App() {
               </div>
             </div>
 
-            <div style={styles.setupSection}>
-              <p style={styles.sectionLabel}>Question style</p>
-              <div style={styles.styleCards}>
-                {questionStyles.map(qs => (
+            {/* STEP 5 - Question style */}
+            <div style={styles.stepSection}>
+              <p style={styles.stepLabel}>STEP 5 — QUESTION STYLE</p>
+              <div style={styles.chipContainer}>
+                {questionStyles.map(style => (
                   <button
-                    key={qs.value}
-                    onClick={() => setQuestionStyle(qs.value)}
-                    style={questionStyle === qs.value ? styles.styleCardSelected : styles.styleCard}
+                    key={style.value}
+                    onClick={() => setQuestionStyle(style.value)}
+                    style={questionStyle === style.value ? styles.chipActive : styles.chip}
                   >
-                    <span style={styles.styleCardLabel}>{qs.label}</span>
-                    <span style={styles.styleCardDesc}>{qs.desc}</span>
+                    {style.label}
                   </button>
                 ))}
               </div>
+              {questionStyle && (
+                <p style={styles.styleHint}>
+                  {questionStyles.find(s => s.value === questionStyle)?.desc}
+                </p>
+              )}
             </div>
 
-            <button
+            {/* Start session button */}
+            <button 
               onClick={() => navigateTo(SCREENS.READY)}
-              disabled={!canContinue}
-              style={canContinue ? styles.primaryButton : styles.primaryButtonDisabled}
+              disabled={!subject || !confidence}
+              style={!subject || !confidence ? styles.startButtonDisabled : styles.startButton}
             >
-              Continue →
+              Start session →
             </button>
           </div>
         )
@@ -717,59 +750,107 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: '3px',
-    padding: '14px 16px',
-    backgroundColor: '#f5f0e8',
-    border: '2px solid transparent',
-    borderRadius: '12px',
+  },
+  confidenceCard: {
+    flex: 1,
+    minWidth: '100px',
+    padding: '16px 12px',
+    border: `2px solid ${colors.border}`,
+    borderRadius: '8px',
+    backgroundColor: colors.white,
     cursor: 'pointer',
-    textAlign: 'left',
-    width: '100%',
+    transition: 'all 0.2s ease',
+    textAlign: 'center'
   },
-  styleCardSelected: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '3px',
-    padding: '14px 16px',
-    backgroundColor: '#eeeaf8',
-    border: '2px solid #1e1b4b',
-    borderRadius: '12px',
+  confidenceCardActive: {
+    flex: 1,
+    minWidth: '100px',
+    padding: '16px 12px',
+    border: `2px solid transparent`,
+    borderRadius: '8px',
+    backgroundColor: colors.white,
     cursor: 'pointer',
-    textAlign: 'left',
+    transition: 'all 0.2s ease',
+    textAlign: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+  },
+  confidenceColor: {
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    margin: '0 auto 8px auto'
+  },
+  confidenceLabel: {
+    fontSize: '14px',
+    fontWeight: '500',
+    margin: 0
+  },
+  styleHint: {
+    fontSize: '13px',
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    marginTop: '8px',
+    margin: '8px 0 0 0'
+  },
+  startButton: {
     width: '100%',
-  },
-  styleCardLabel: {
+    padding: '16px',
+    backgroundColor: colors.blue,
+    color: colors.white,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
     fontFamily: 'IBM Plex Sans, sans-serif',
-    fontWeight: 600,
-    fontSize: '0.95rem',
-    color: '#1e1b4b',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
+    marginTop: '24px'
   },
-  styleCardDesc: {
+  startButtonDisabled: {
+    width: '100%',
+    padding: '16px',
+    backgroundColor: colors.border,
+    color: colors.textMuted,
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
     fontFamily: 'IBM Plex Sans, sans-serif',
-    fontWeight: 400,
-    fontSize: '0.8rem',
-    color: '#6b6580',
-    lineHeight: 1.4,
+    cursor: 'not-allowed',
+    marginTop: '24px'
   },
-
-  // Shared / other screens
   screenPlaceholder: {
     fontFamily: 'IBM Plex Sans, sans-serif',
     textAlign: 'center',
     padding: '20px'
   },
+  title: {
+    fontFamily: 'Playfair Display, serif',
+    fontStyle: 'italic',
+    fontWeight: 700,
+    color: colors.navy,
+    fontSize: '2.5rem',
+    marginBottom: '16px',
+    textAlign: 'center'
+  },
+  subtitle: {
+    fontFamily: 'IBM Plex Sans, sans-serif',
+    fontWeight: 400,
+    color: colors.textLight,
+    fontSize: '1.1rem',
+    textAlign: 'center'
+  },
   input: {
     width: '100%',
     padding: '12px',
     margin: '8px 0',
-    border: '1px solid #ddd',
+    border: `1px solid ${colors.border}`,
     borderRadius: '8px',
     fontSize: '16px',
     fontFamily: 'IBM Plex Sans, sans-serif'
   },
   button: {
-    backgroundColor: '#1e1b4b',
+    backgroundColor: colors.navy,
     color: 'white',
     border: 'none',
     padding: '12px 24px',
@@ -777,12 +858,12 @@ const styles = {
     fontSize: '16px',
     fontFamily: 'IBM Plex Sans, sans-serif',
     cursor: 'pointer',
-    margin: '8px',
+    margin: '8px'
   },
   backButton: {
     backgroundColor: 'transparent',
-    color: '#6b6580',
-    border: '1px solid #6b6580',
+    color: colors.textLight,
+    border: `1px solid ${colors.textLight}`,
     padding: '8px 16px',
     borderRadius: '8px',
     fontSize: '14px',
@@ -791,7 +872,7 @@ const styles = {
     margin: '8px'
   },
   exitButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: colors.terracotta,
     color: 'white',
     border: 'none',
     padding: '8px 16px',
@@ -803,15 +884,11 @@ const styles = {
   },
   linkButton: {
     backgroundColor: 'transparent',
-    color: '#1e1b4b',
+    color: colors.navy,
     border: 'none',
     textDecoration: 'underline',
     cursor: 'pointer',
     fontFamily: 'IBM Plex Sans, sans-serif'
-  },
-  formGroup: {
-    margin: '16px 0',
-    textAlign: 'left'
   },
   modal: {
     position: 'fixed',
@@ -826,7 +903,7 @@ const styles = {
     zIndex: 1000
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
     padding: '24px',
     borderRadius: '12px',
     textAlign: 'center',

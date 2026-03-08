@@ -1,0 +1,95 @@
+Build out SETUP screen with full curriculum selection UI.
+
+DESIGN SYSTEM (use for all UI from here on):
+  Colours:
+    cream: #f5f0e8, white: #fffefb, blue: #3430d4, navy: #1e1b4b
+    terracotta: #c8553d, text: #3d3552, textLight: #6b6580
+    textMuted: #9992a8, border: #d8d0c4
+  Fonts:
+    Headings: Playfair Display italic
+    Body: IBM Plex Sans
+    Mono: IBM Plex Mono
+  Labels: blue, uppercase, letter-spacing 0.08em, font-size 12px
+
+SETUP SCREEN LAYOUT:
+1. Greeting: "Hey {name} 👋" (light text)
+   Plus subtle "Not {name}? Switch user" link
+
+2. Title: "Set up your session" (Playfair Display italic, navy)
+
+3. Scallop wave divider (SVG component — I'll provide path data):
+   <svg viewBox="0 0 400 32" preserveAspectRatio="none" 
+     style width 100%, height 20px>
+     <path d="M0 32 C20 0,40 0,50 16 C60 32,80 32,100 16 C110 0,130 
+     0,150 16 C160 32,180 32,200 16 C210 0,230 0,250 16 C260 32,280 
+     32,300 16 C310 0,330 0,350 16 C360 32,380 32,400 16 L400 32Z" 
+     fill={blue} />
+   </svg>
+
+4. STEP 1 — Curriculum (chip buttons):
+   "GCSE Maths" / "A-Level Maths" / "IB Maths"
+
+5. STEP 2 — Sub-level (appears with slide animation after Step 1):
+   GCSE selected → "Foundation" / "Higher"
+   A-Level selected → "Maths" / "Further Maths"  
+   IB selected → "SL" / "HL"
+
+   The subject state stores compound key:
+     gcse-foundation, gcse-higher, alevel-maths, alevel-further, ib-sl, ib-hl
+
+6. After sub-level selected, show a subtle line of text:
+   "Covers: Number, Algebra, Geometry, Statistics" (topic names from 
+   topics.json for that level)
+
+7. STEP 3 — Confidence:
+   Three cards: "I struggle" (terracotta) / "Getting there" (#d4882a) / 
+   "Fairly solid" (blue)
+   Each with a subtitle underneath
+
+8. STEP 4 — Sprint duration:
+   Chips: 10 min / 15 min / 20 min / 25 min (mono font)
+
+9. STEP 5 — Question style:
+   Chips: "Quick fire" / "Mixed" / "Exam practice"
+   Hint text below selection:
+     Quick fire: "Fast recall — aim for speed and accuracy"
+     Mixed: "A balanced mix of quick and multi-step questions"
+     Exam practice: "Longer problems like you'd see in an exam"
+
+10. "Start session →" button (blue, full width, disabled until 
+    confidence is selected)
+
+Chip style: padding 9px 16px, border 2px solid border colour, 
+border-radius 6px. Active state: blue border, blue text, light 
+blue background.
+
+Now populate src/data/topics.json with this content:
+{
+  "gcse-foundation": {
+    "name": "GCSE Foundation",
+    "topics": ["Number", "Algebra", "Geometry", "Statistics"]
+  },
+  "gcse-higher": {
+    "name": "GCSE Higher",
+    "topics": ["Number", "Algebra", "Geometry", "Statistics", "Trigonometry", "Calculus"]
+  },
+  "alevel-maths": {
+    "name": "A-Level Maths",
+    "topics": ["Pure Mathematics", "Mechanics", "Statistics"]
+  },
+  "alevel-further": {
+    "name": "A-Level Further Maths",
+    "topics": ["Further Pure", "Further Mechanics", "Further Statistics", "Decision Mathematics"]
+  },
+  "ib-sl": {
+    "name": "IB SL",
+    "topics": ["Number & Algebra", "Functions", "Geometry & Trigonometry", "Statistics & Probability", "Calculus"]
+  },
+  "ib-hl": {
+    "name": "IB HL",
+    "topics": ["Number & Algebra", "Functions", "Geometry & Trigonometry", "Statistics & Probability", "Calculus", "Further Mathematics"]
+  }
+}
+
+Commit: "feat: setup screen with curriculum hierarchy"
+Push.

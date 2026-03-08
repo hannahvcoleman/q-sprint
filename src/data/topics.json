@@ -1,1 +1,26 @@
-{}
+{
+  "gcse-foundation": {
+    "name": "GCSE Foundation",
+    "topics": ["Number", "Algebra", "Geometry", "Statistics"]
+  },
+  "gcse-higher": {
+    "name": "GCSE Higher",
+    "topics": ["Number", "Algebra", "Geometry", "Statistics", "Trigonometry", "Calculus"]
+  },
+  "alevel-maths": {
+    "name": "A-Level Maths",
+    "topics": ["Pure Mathematics", "Mechanics", "Statistics"]
+  },
+  "alevel-further": {
+    "name": "A-Level Further Maths",
+    "topics": ["Further Pure", "Further Mechanics", "Further Statistics", "Decision Mathematics"]
+  },
+  "ib-sl": {
+    "name": "IB SL",
+    "topics": ["Number & Algebra", "Functions", "Geometry & Trigonometry", "Statistics & Probability", "Calculus"]
+  },
+  "ib-hl": {
+    "name": "IB HL",
+    "topics": ["Number & Algebra", "Functions", "Geometry & Trigonometry", "Statistics & Probability", "Calculus", "Further Mathematics"]
+  }
+}
