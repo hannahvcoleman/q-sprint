@@ -1,1 +1,87 @@
-[]
+[
+  {
+    "id": "gcse-num-001",
+    "level": "gcse-foundation",
+    "topic": "Number",
+    "subtopic": "Fractions & Decimals",
+    "difficulty": 1,
+    "questionType": "short",
+    "question": "Work out:\n⅔ + ¾",
+    "answer": "17/12",
+    "answerLabel": "17/12 or 1 5/12",
+    "acceptedAnswers": ["17/12", "1 5/12", "1.4167"],
+    "hints": [
+      "To add fractions you need a common denominator. What is the LCM of 3 and 4?",
+      "LCM is 12.\n⅔ = 8/12\n¾ = 9/12",
+      "⅔ + ¾ = 8/12 + 9/12 = 17/12"
+    ]
+  },
+  {
+    "id": "gcse-geo-002",
+    "level": "gcse-foundation", 
+    "topic": "Geometry",
+    "subtopic": "Area",
+    "difficulty": 2,
+    "questionType": "standard",
+    "question": "A rectangle has length 8cm and width 5cm. What is its area?",
+    "answer": "40 cm²",
+    "answerLabel": "40 square centimeters",
+    "acceptedAnswers": ["40", "40cm²", "40 cm²"],
+    "hints": [
+      "Area = length × width",
+      "Area = 8cm × 5cm",
+      "Area = 40cm²"
+    ]
+  },
+  {
+    "id": "gcse-alg-003",
+    "level": "gcse-foundation",
+    "topic": "Algebra",
+    "subtopic": "Linear Equations",
+    "difficulty": 1,
+    "questionType": "standard",
+    "question": "Solve for x: 2x + 5 = 13",
+    "answer": "x = 4",
+    "answerLabel": "x equals 4",
+    "acceptedAnswers": ["4", "x=4", "x = 4"],
+    "hints": [
+      "First, get the x terms on one side.",
+      "Subtract 5 from both sides: 2x = 8",
+      "Divide both sides by 2: x = 4"
+    ]
+  },
+  {
+    "id": "gcse-higher-001",
+    "level": "gcse-higher",
+    "topic": "Algebra",
+    "subtopic": "Quadratic Equations",
+    "difficulty": 3,
+    "questionType": "standard",
+    "question": "Solve: x² - 5x + 6 = 0",
+    "answer": "x = 2 or x = 3",
+    "answerLabel": "x equals 2 or 3",
+    "acceptedAnswers": ["2,3", "x=2,3", "x = 2 or x = 3"],
+    "hints": [
+      "This is a quadratic equation. Try factoring.",
+      "Look for two numbers that multiply to 6 and add to -5.",
+      "The numbers are -2 and -3. So (x-2)(x-3) = 0, giving x = 2 or x = 3."
+    ]
+  },
+  {
+    "id": "ib-sl-001",
+    "level": "ib-sl",
+    "topic": "Functions",
+    "subtopic": "Linear Functions",
+    "difficulty": 2,
+    "questionType": "standard",
+    "question": "Find the gradient of the line through (2, 3) and (6, 9)",
+    "answer": "m = 1",
+    "answerLabel": "gradient equals 1",
+    "acceptedAnswers": ["1", "m=1", "m = 1"],
+    "hints": [
+      "Gradient formula: m = (y₂ - y₁)/(x₂ - x₁)",
+      "m = (9 - 3)/(6 - 2) = 6/4",
+      "m = 3/2 = 1.5"
+    ]
+  }
+]
